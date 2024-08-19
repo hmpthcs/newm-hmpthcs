@@ -149,7 +149,7 @@ void wm_callback_layout_change(struct wm_layout *layout) {
     TIMER_PRINT(callback_layout_change);
 }
 
-bool wm_callback_key(struct wlr_event_keyboard_key *event,
+bool wm_callback_key(struct wlr_keyboard_key_event *event,
                      const char *keysyms) {
     TIMER_START(callback_key);
     DEBUG_PERFORMANCE(callback_start, 0);
@@ -190,7 +190,7 @@ bool wm_callback_motion(double delta_x, double delta_y, double abs_x, double abs
     return res;
 }
 
-bool wm_callback_button(struct wlr_event_pointer_button *event) {
+bool wm_callback_button(struct wlr_pointer_button_event *event) {
     TIMER_START(callback_button);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -204,7 +204,7 @@ bool wm_callback_button(struct wlr_event_pointer_button *event) {
     return res;
 }
 
-bool wm_callback_axis(struct wlr_event_pointer_axis *event) {
+bool wm_callback_axis(struct wlr_pointer_axis_event *event) {
     TIMER_START(callback_axis);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -218,7 +218,7 @@ bool wm_callback_axis(struct wlr_event_pointer_axis *event) {
     return res;
 }
 
-bool wm_callback_gesture_swipe_begin(struct wlr_event_pointer_swipe_begin* event){
+bool wm_callback_gesture_swipe_begin(struct wlr_pointer_swipe_begin_event* event){
     TIMER_START(callback_gesture_swipe_begin);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -231,7 +231,7 @@ bool wm_callback_gesture_swipe_begin(struct wlr_event_pointer_swipe_begin* event
 
     return res;
 }
-bool wm_callback_gesture_swipe_update(struct wlr_event_pointer_swipe_update* event){
+bool wm_callback_gesture_swipe_update(struct wlr_pointer_swipe_update_event* event){
     TIMER_START(callback_gesture_swipe_update);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -244,7 +244,7 @@ bool wm_callback_gesture_swipe_update(struct wlr_event_pointer_swipe_update* eve
 
     return res;
 }
-bool wm_callback_gesture_swipe_end(struct wlr_event_pointer_swipe_end* event){
+bool wm_callback_gesture_swipe_end(struct wlr_pointer_swipe_end_event* event){
     TIMER_START(callback_gesture_swipe_end);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -257,7 +257,7 @@ bool wm_callback_gesture_swipe_end(struct wlr_event_pointer_swipe_end* event){
 
     return res;
 }
-bool wm_callback_gesture_pinch_begin(struct wlr_event_pointer_pinch_begin* event){
+bool wm_callback_gesture_pinch_begin(struct wlr_pointer_pinch_begin_event* event){
     TIMER_START(callback_gesture_pinch_begin);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -270,7 +270,7 @@ bool wm_callback_gesture_pinch_begin(struct wlr_event_pointer_pinch_begin* event
 
     return res;
 }
-bool wm_callback_gesture_pinch_update(struct wlr_event_pointer_pinch_update* event){
+bool wm_callback_gesture_pinch_update(struct wlr_pointer_pinch_update_event* event){
     TIMER_START(callback_gesture_pinch_update);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -283,7 +283,7 @@ bool wm_callback_gesture_pinch_update(struct wlr_event_pointer_pinch_update* eve
 
     return res;
 }
-bool wm_callback_gesture_pinch_end(struct wlr_event_pointer_pinch_end* event){
+bool wm_callback_gesture_pinch_end(struct wlr_pointer_pinch_end_event* event){
     TIMER_START(callback_gesture_pinch_end);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -296,7 +296,7 @@ bool wm_callback_gesture_pinch_end(struct wlr_event_pointer_pinch_end* event){
 
     return res;
 }
-bool wm_callback_gesture_hold_begin(struct wlr_event_pointer_hold_begin* event){
+bool wm_callback_gesture_hold_begin(struct wlr_pointer_hold_begin_event* event){
     TIMER_START(callback_gesture_hold_begin);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;
@@ -308,7 +308,7 @@ bool wm_callback_gesture_hold_begin(struct wlr_event_pointer_hold_begin* event){
     TIMER_PRINT(callback_gesture_hold_begin);
     return res;
 }
-bool wm_callback_gesture_hold_end(struct wlr_event_pointer_hold_end* event){
+bool wm_callback_gesture_hold_end(struct wlr_pointer_hold_end_event* event){
     TIMER_START(callback_gesture_hold_end);
     DEBUG_PERFORMANCE(callback_start, 0);
     bool res = false;

@@ -224,7 +224,7 @@ void wm_seat_focus_surface(struct wm_seat* seat, struct wlr_surface* surface){
 
 }
 
-void wm_seat_dispatch_key(struct wm_seat* seat, struct wlr_input_device* input_device, struct wlr_event_keyboard_key* event){
+void wm_seat_dispatch_key(struct wm_seat* seat, struct wlr_input_device* input_device, struct wlr_keyboard_key_event* event){
     wlr_seat_set_keyboard(seat->wlr_seat, input_device);
     wlr_seat_keyboard_notify_key(seat->wlr_seat, event->time_msec, event->keycode, event->state);
 }
@@ -276,7 +276,7 @@ Guard:
 }
 
 
-void wm_seat_dispatch_button(struct wm_seat* seat, struct wlr_event_pointer_button* event){
+void wm_seat_dispatch_button(struct wm_seat* seat, struct wlr_pointer_button_event* event){
     struct wlr_surface* surface;
     double sx;
     double sy;
@@ -299,7 +299,7 @@ void wm_seat_dispatch_button(struct wm_seat* seat, struct wlr_event_pointer_butt
         seat->seatop_down.active = false;
     }
 }
-void wm_seat_dispatch_axis(struct wm_seat* seat, struct wlr_event_pointer_axis* event){
+void wm_seat_dispatch_axis(struct wm_seat* seat, struct wlr_pointer_axis_event* event){
     struct wlr_surface* surface;
     double sx;
     double sy;

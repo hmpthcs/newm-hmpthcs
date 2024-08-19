@@ -42,13 +42,13 @@ void wm_seat_clear_focus(struct wm_seat* seat);
 void wm_seat_focus_surface(struct wm_seat* seat, struct wlr_surface* surface);
 
 /* Pass input on to client */
-void wm_seat_dispatch_key(struct wm_seat* seat, struct wlr_input_device* input_device, struct wlr_event_keyboard_key* event);
+void wm_seat_dispatch_key(struct wm_seat* seat, struct wlr_input_device* input_device, struct wlr_keyboard_key_event* event);
 void wm_seat_dispatch_modifiers(struct wm_seat* seat, struct wlr_input_device* input_device);
 
 /* true means event has been dispatched */
 bool wm_seat_dispatch_motion(struct wm_seat* seat, double x, double y, uint32_t time_msec);
-void wm_seat_dispatch_button(struct wm_seat* seat, struct wlr_event_pointer_button* event);
-void wm_seat_dispatch_axis(struct wm_seat* seat, struct wlr_event_pointer_axis* event);
+void wm_seat_dispatch_button(struct wm_seat* seat, struct wlr_pointer_button_event* event);
+void wm_seat_dispatch_axis(struct wm_seat* seat, struct wlr_pointer_axis_event* event);
 void wm_seat_kill_seatop(struct wm_seat* seat);
 
 void wm_seat_reconfigure(struct wm_seat* seat);

@@ -21,14 +21,14 @@
  */
 static void handle_motion(struct wl_listener* listener, void* data){
     struct wm_cursor* cursor = wl_container_of(listener, cursor, motion);
-    struct wlr_event_pointer_motion* event = data;
+    struct wlr_pointer_motion_event* event = data;
 
     clock_t t_msec = clock() * 1000 / CLOCKS_PER_SEC;
     cursor->msec_delta = event->time_msec - t_msec;
 
-    wlr_cursor_move(cursor->wlr_cursor, event->device, event->delta_x, event->delta_y);
+    wlr_cursor_move(cursor->wlr_cursor, &event->pointer->base, event->delta_x, event->delta_y);
     if(wm_callback_motion(event->delta_x, event->delta_y, cursor->wlr_cursor->x, cursor->wlr_cursor->y, event->time_msec)){
-        wlr_cursor_move(cursor->wlr_cursor, event->device, -event->delta_x, -event->delta_y);
+        wlr_cursor_move(cursor->wlr_cursor, &event->pointer->base, -event->delta_x, -event->delta_y);
         return;
     }
 
@@ -37,10 +37,10 @@ static void handle_motion(struct wl_listener* listener, void* data){
 
 static void handle_motion_absolute(struct wl_listener* listener, void* data){
     struct wm_cursor* cursor = wl_container_of(listener, cursor, motion_absolute);
-    struct wlr_event_pointer_motion_absolute* event = data;
+    struct wlr_pointer_motion_absolute_event* event = data;
 
     double lx, ly;
-    wlr_cursor_absolute_to_layout_coords(cursor->wlr_cursor, event->device, event->x, event->y, &lx, &ly);
+    wlr_cursor_absolute_to_layout_coords(cursor->wlr_cursor, &event->pointer->base, event->x, event->y, &lx, &ly);
 
     double dx = lx - cursor->wlr_cursor->x;
     double dy = ly - cursor->wlr_cursor->y;
@@ -49,13 +49,13 @@ static void handle_motion_absolute(struct wl_listener* listener, void* data){
         return;
     }
 
-    wlr_cursor_move(cursor->wlr_cursor, event->device, dx, dy);
+    wlr_cursor_move(cursor->wlr_cursor, &event->pointer->base, dx, dy);
     wm_cursor_update(cursor);
 }
 
 static void handle_button(struct wl_listener* listener, void* data){
     struct wm_cursor* cursor = wl_container_of(listener, cursor, button);
-    struct wlr_event_pointer_button* event = data;
+    struct wlr_pointer_button_event* event = data;
 
     if(wm_callback_button(event)){
         wm_seat_kill_seatop(cursor->wm_seat);
@@ -67,7 +67,7 @@ static void handle_button(struct wl_listener* listener, void* data){
 
 static void handle_axis(struct wl_listener* listener, void* data){
     struct wm_cursor* cursor = wl_container_of(listener, cursor, axis);
-    struct wlr_event_pointer_axis* event = data;
+    struct wlr_pointer_axis_event* event = data;
 
     if(wm_callback_axis(event)){
         return;
@@ -90,7 +90,7 @@ static void handle_surface_destroy(struct wl_listener* listener, void* data){
 static void handle_pointer_pinch_begin(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, pinch_begin);
-    struct wlr_event_pointer_pinch_begin *event = data;
+    struct wlr_pointer_pinch_begin_event *event = data;
 
     if(wm_callback_gesture_pinch_begin(event)){
         return;
@@ -105,7 +105,7 @@ static void handle_pointer_pinch_begin(struct wl_listener *listener, void *data)
 static void handle_pointer_pinch_update(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, pinch_update);
-    struct wlr_event_pointer_pinch_update *event = data;
+    struct wlr_pointer_pinch_update_event *event = data;
 
     if(wm_callback_gesture_pinch_update(event)){
         return;
@@ -120,7 +120,7 @@ static void handle_pointer_pinch_update(struct wl_listener *listener, void *data
 static void handle_pointer_pinch_end(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, pinch_end);
-    struct wlr_event_pointer_pinch_end *event = data;
+    struct wlr_pointer_pinch_end_event *event = data;
 
     if(wm_callback_gesture_pinch_end(event) && !cursor->pinch_started){
         return;
@@ -135,7 +135,7 @@ static void handle_pointer_pinch_end(struct wl_listener *listener, void *data) {
 static void handle_pointer_swipe_begin(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, swipe_begin);
-    struct wlr_event_pointer_swipe_begin *event = data;
+    struct wlr_pointer_swipe_begin_event *event = data;
 
     if(wm_callback_gesture_swipe_begin(event)){
         return;
@@ -150,7 +150,7 @@ static void handle_pointer_swipe_begin(struct wl_listener *listener, void *data)
 static void handle_pointer_swipe_update(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, swipe_update);
-    struct wlr_event_pointer_swipe_update *event = data;
+    struct wlr_pointer_swipe_update_event *event = data;
 
     if(wm_callback_gesture_swipe_update(event)){
         return;
@@ -164,7 +164,7 @@ static void handle_pointer_swipe_update(struct wl_listener *listener, void *data
 static void handle_pointer_swipe_end(struct wl_listener *listener, void *data) {
     struct wm_cursor *cursor = wl_container_of(
             listener, cursor, swipe_end);
-    struct wlr_event_pointer_swipe_end *event = data;
+    struct wlr_pointer_swipe_end_event *event = data;
 
     if(wm_callback_gesture_swipe_end(event) && !cursor->swipe_started){
         return;

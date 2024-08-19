@@ -26,7 +26,7 @@ static void handle_destroy(struct wl_listener* listener, void* data){
 
 static void handle_key(struct wl_listener* listener, void* data){
     struct wm_keyboard* keyboard = wl_container_of(listener, keyboard, key);
-    struct wlr_event_keyboard_key* event = data;
+    struct wlr_keyboard_key_event* event = data;
 
     xkb_keycode_t keycode = event->keycode + 8;
     size_t keysyms_len;
