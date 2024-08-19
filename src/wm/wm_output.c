@@ -1,3 +1,5 @@
+#include <wayland-server-core.h>
+#include <wayland-util.h>
 #define _POSIX_C_SOURCE 200809L
 
 #include "wm/wm_output.h"
@@ -121,7 +123,7 @@ static void render(struct wm_output *output, struct timespec now, pixman_region3
 
     enum wl_output_transform transform =
         wlr_output_transform_invert(output->wlr_output->transform);
-    wlr_region_transform(&frame_damage, &output->wlr_output_damage->current, transform,
+    wlr_region_transform(&frame_damage, &output->wlr_damage->current, transform,
                          width, height);
 
 #ifdef DEBUG_DAMAGE_HIGHLIGHT
@@ -142,8 +144,16 @@ static void render(struct wm_output *output, struct timespec now, pixman_region3
     wm_server_schedule_update(output->wm_server, output);
 }
 
-static void handle_damage_frame(struct wl_listener *listener, void *data) {
-    struct wm_output *output = wl_container_of(listener, output, damage_frame);
+static void handle_damage(struct wl_listener *listener, void *data) {
+    struct wm_output *output = wl_container_of(listener, output, damage);
+    struct wlr_output_event_damage *event = data;
+    if (wlr_damage_ring_add(&output->damage_ring, event->damage)) {
+        wlr_output_schedule_frame(output->wlr_output);
+    }
+}
+
+static void handle_frame(struct wl_listener *listener, void *data) {
+    struct wm_output *output = wl_container_of(listener, output, frame);
 
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -153,11 +163,9 @@ static void handle_damage_frame(struct wl_listener *listener, void *data) {
         wlr_log(WLR_DEBUG, "Output %d dropped frame (%.2fms)", output->key, diff);
     }
 
-    bool needs_frame;
-    pixman_region32_t damage;
-    pixman_region32_init(&damage);
-    if (wlr_output_damage_attach_render(
-                output->wlr_output_damage, &needs_frame, &damage)) {
+    int buffer_age;
+    if (wlr_output_attach_render(
+                output->wlr_output, &buffer_age)) {
 #ifdef DEBUG_DAMAGE_RERENDER
         int width, height;
         wlr_output_transformed_resolution(output->wlr_output, &width, &height);
@@ -175,6 +183,11 @@ static void handle_damage_frame(struct wl_listener *listener, void *data) {
             output->expecting_frame = true;
         } else {
             DEBUG_PERFORMANCE(skip_frame, output->key);
+            pixman_region32_t damage;
+            pixman_region32_init(&damage);
+            wlr_damage_ring_get_buffer_damage(&output->damage_ring, buffer_age, &damage);
+            if(!output->wlr_output->needs_frame && !pixman_region32_not_empty(&output->damage_ring.current)) {
+                pixman_region32_fini(&damage);
             wlr_output_rollback(output->wlr_output);
 
             output->expecting_frame = false;
@@ -188,11 +201,14 @@ static void handle_damage_frame(struct wl_listener *listener, void *data) {
 
 }
 
-static void handle_damage_destroy(struct wl_listener *listener, void *data) {
-    struct wm_output *output = wl_container_of(listener, output, damage_destroy);
+static void handle_needs_frame(struct wl_listener *listener, void *data) {
+    struct wm_output *output = wl_container_of(listener, output, needs_frame);
+    wlr_output_schedule_frame(output->wlr_output);
+}
 
-    wl_list_remove(&output->damage_frame.link);
-    wl_list_remove(&output->damage_destroy.link);
+static void handle_damage_destroy(struct wl_listener *listener, void *data) {
+    struct wm_output *output = wl_container_of(listener, output, damage);
+
 }
 
 /*
@@ -302,7 +318,7 @@ void wm_output_init(struct wm_output *output, struct wm_server *server,
         return;
     }
 
-    output->wlr_output_damage = wlr_output_damage_create(output->wlr_output);
+    output->wlr_damage = wlr_damage_create(output->wlr_output);
 
     double scale = configure(output);
 
@@ -318,13 +334,16 @@ void wm_output_init(struct wm_output *output, struct wm_server *server,
     output->present.notify = handle_present;
     wl_signal_add(&output->wlr_output->events.present, &output->present);
 
-    output->damage_frame.notify = handle_damage_frame;
-    wl_signal_add(&output->wlr_output_damage->events.frame,
-            &output->damage_frame);
+    output->frame.notify = handle_frame;
+    wl_signal_add(&output->wlr_output->events.frame,
+            &output->frame);
 
-    output->damage_destroy.notify = handle_damage_destroy;
-    wl_signal_add(&output->wlr_output_damage->events.destroy,
-            &output->damage_destroy);
+    output->damage.notify = handle_damage;
+    wl_signal_add(&output->wlr_output->events.destroy,
+            &output->damage);
+
+    output->needs_frame.notify = handle_needs_frame;
+    wl_signal_add(&output->wlr_output->events.needs_frame, &output->needs_frame);
 
     /* Let the cursor know we possibly have a new scale */
     wm_cursor_ensure_loaded_for_scale(server->wm_seat->wm_cursor, scale);
@@ -347,7 +366,11 @@ void wm_output_destroy(struct wm_output *output) {
     wl_list_remove(&output->commit.link);
     wl_list_remove(&output->mode.link);
     wl_list_remove(&output->present.link);
+    wl_list_remove(&output->frame.link);
+    wl_list_remove(&output->damage.link);
+    wl_list_remove(&output->needs_frame.link);
     wl_list_remove(&output->link);
+    wlr_damage_ring_finish(&output->damage_ring);
     wm_layout_remove_output(output->wm_layout, output);
 
 #if WM_CUSTOM_RENDERER
