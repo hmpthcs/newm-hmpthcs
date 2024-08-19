@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
+#include <wlr/util/transform.h>
 #include <wlr/types/wlr_matrix.h>
 
 /* #define DEBUG_DAMAGE_HIGHLIGHT */

@@ -7,6 +7,7 @@
 #include <wayland-server.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_matrix.h>
+#include <wlr/util/transform.h>
 #include <wlr/util/log.h>
 
 #include "wm/wm_output.h"
