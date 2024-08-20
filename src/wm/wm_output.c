@@ -124,7 +124,7 @@ static void render(struct wm_output *output, struct timespec now, pixman_region3
 
     enum wl_output_transform transform =
         wlr_output_transform_invert(output->wlr_output->transform);
-    wlr_region_transform(&frame_damage, &output->wlr_damage->current, transform,
+    wlr_region_transform(&frame_damage, &output->damage_ring.current, transform,
                          width, height);
 
 #ifdef DEBUG_DAMAGE_HIGHLIGHT

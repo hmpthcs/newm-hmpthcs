@@ -19,7 +19,7 @@ struct wm_output {
     int key; // Unique key in a layout - update on layout change
 
     struct wlr_output* wlr_output;
-    struct wlr_damage_ring* damage_ring;
+    struct wlr_damage_ring damage_ring;
 
     struct wl_listener destroy;
     struct wl_listener commit;
